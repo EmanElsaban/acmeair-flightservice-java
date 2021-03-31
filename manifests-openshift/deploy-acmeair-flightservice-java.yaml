@@ -17,17 +17,18 @@ spec:
     spec:
       containers:
       - name: acmeair-flightservice-java
-        image: emanelsabban/acmeair-microsvc:acmeair-flightservice-java
+        image: docker.io/emanelsabban/acmeair-microsvc:acmeair-flightservice2-java
+        #image: emanelsabban/acmeair-microsvc:acmeair-flightservice-java
         ports:
           - containerPort: 9080
           - containerPort: 9443
         imagePullPolicy: IfNotPresent
         resources:
           limits:
-            memory: 400Mi
+            memory: 250Mi
             cpu: 1
           requests:
-            memory: 400Mi
+            memory: 250Mi
             cpu: 400m
         env:
         - name: USERNAME
@@ -49,19 +50,21 @@ spec:
         - name: LOGGING_FORMAT
           value: 'simple'
         - name: JAVA_OPTIONS
-          #value: '-XX:+UseJITServer -XX:JITServerAddress=ibm-java-acceleration-server -XX:JITServerTimeout=10000 -Xjit:verbose={compilePerformance|JITServer},vlog=/tmp/vlog.txt'
-          value: '-Xjit:verbose={compilePerformance},vlog=/tmp/vlog.txt'        
+          value: '-XX:+UseJITServer -XX:JITServerAddress=ibm-java-acceleration-server -XX:JITServerTimeout=10000 -Xjit:verbose={compilePerformance|JITServer},vlog=/tmp/vlog.txt'
+          #value: '-Xjit:verbose={compilePerformance},vlog=/tmp/vlog.txt'        
         readinessProbe:
           httpGet:
             path: /health
             port: 9080
-          initialDelaySeconds: 10
-          periodSeconds: 5
+          initialDelaySeconds: 15
+          timeoutSeconds: 25
+          periodSeconds: 15
         livenessProbe:
           httpGet:
             path: /health
             port: 9080
           initialDelaySeconds: 120
+          timeoutSeconds: 25
           periodSeconds: 15
       nodeSelector:
         chosen: "true"
@@ -139,7 +142,13 @@ spec:
         ports:
         - containerPort: 27017
           protocol: TCP
-        resources: {}
+        resources:
+          limits:
+            memory: 500Mi
+            cpu: 2
+          requests:
+            memory: 500Mi
+            cpu: 400m 
         volumeMounts:
           - name: acmeair-flight-db-1
             mountPath: /data/configdb
